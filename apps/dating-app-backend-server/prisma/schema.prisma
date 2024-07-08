@@ -1,0 +1,97 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Profile {
+  id             String             @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  interests      String?
+  profilePicture Json?
+  gender         EnumProfileGender?
+  age            Int?
+  bio            String?
+  user           User?              @relation(fields: [userId], references: [id])
+  userId         String?            @db.ObjectId
+}
+
+model Match {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user1     String?
+  user2     String?
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String?
+  receiver  String?
+  match     Match?   @relation(fields: [matchId], references: [id])
+  matchId   String?  @db.ObjectId
+  sender    String?
+}
+
+model User {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  firstName     String?
+  lastName      String?
+  username      String         @unique
+  email         String?        @unique
+  password      String
+  roles         Json
+  profiles      Profile[]
+  subscriptions Subscription[]
+}
+
+model Blog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String?
+  content   String?
+  author    String?
+}
+
+model Report {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  reason       String?
+  status       EnumReportStatus?
+  reportedBy   String?
+  reportedUser String?
+}
+
+model Subscription {
+  id        String                     @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
+  endDate   DateTime?
+  startDate DateTime?
+  typeField EnumSubscriptionTypeField?
+  user      User?                      @relation(fields: [userId], references: [id])
+  userId    String?                    @db.ObjectId
+}
+
+enum EnumProfileGender {
+  Option1
+}
+
+enum EnumReportStatus {
+  Option1
+}
+
+enum EnumSubscriptionTypeField {
+  Option1
+}
